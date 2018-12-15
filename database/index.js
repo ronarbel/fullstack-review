@@ -1,11 +1,16 @@
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/fetcher');
 let db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'))
+db.once('open', () => {
+  console.log('Established Mongo Connection')
+});
 
 let repoSchema = mongoose.Schema({
-  // TODO: your schema here!
   name: String,
-  owner: Object,
+  owner: {
+    login: String
+  },
   html_url: String,
   description: String,
   created_at: String,
@@ -16,14 +21,28 @@ let repoSchema = mongoose.Schema({
 
 let Repo = mongoose.model('Repo', repoSchema);
 
-let save = (data) => {
-  // TODO: Your code here
-  // This function should save a repo or repos to
-  // the MongoDB
-  db.on('error', console.error.bind(console, 'connection error:'))
-  db.once('open', () => {
-    let entry = new Repo(data);
-    entry.save();
+let save = (repos, cb) => {
+
+  let savePromises = [];
+
+  for (let i = 0; i < repos.length; i++) {
+    let repo = repos[i];
+    let promise = Repo.findOne({name: repo.name}).then(exists => {
+      if (exists) {
+        console.log(`     Sorry, ${repo.name} already exists`);
+        return;
+      }
+
+      let newEntry = new Repo(repo);
+      return newEntry.save().then(() => {
+        console.log(`     Saved ${repo.name} successfully!`)
+      });
+    });
+    savePromises.push(promise);
+  }
+
+  Promise.all(savePromises).then(() => {
+    cb();
   })
 }
 
