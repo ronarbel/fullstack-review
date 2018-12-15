@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import $ from 'jquery';
 import Search from './components/Search.jsx';
 import RepoList from './components/RepoList.jsx';
+import { stringify } from 'querystring';
 
 class App extends React.Component {
   constructor(props) {
@@ -17,13 +18,12 @@ class App extends React.Component {
     console.log(`${term} was searched`);
     // TODO
     $.ajax({
-      type: "POST",
+      method: "POST",
       url: "http://localhost:1128/repos",
       data: term,
+      dataType: "json",
       success: (data) => {console.log('Successful AJAX with: ' + data)}
     })
-    
-    //save to db instead of success callback^^^
   }
 
   render () {
