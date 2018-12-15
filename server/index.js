@@ -1,6 +1,8 @@
+const morgan = require('morgan');
 const express = require('express');
 let app = express();
 
+app.use(morgan('tiny'));
 app.use(express.static(__dirname + '/../client/dist'));
 
 app.post('/repos', function (req, res) {
