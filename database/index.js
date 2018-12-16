@@ -22,7 +22,6 @@ let repoSchema = mongoose.Schema({
 let Repo = mongoose.model('Repo', repoSchema);
 
 let save = (repos, cb) => {
-
   let savePromises = [];
 
   for (let i = 0; i < repos.length; i++) {
@@ -46,4 +45,14 @@ let save = (repos, cb) => {
   })
 }
 
+let retrieve = (cb) => {
+  Repo.find().sort({size: -1})
+    .then((repos) => {
+      cb(repos);
+    }).catch((err) => {
+      console.log(err);
+    });
+}
+
 module.exports.save = save;
+module.exports.retrieve = retrieve;
